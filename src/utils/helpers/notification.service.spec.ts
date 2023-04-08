@@ -1,68 +1,57 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationService } from './notification.service';
 import { RabbitMQConfig } from './rabbit.config';
-import { connect, Channel, Connection } from 'amqplib';
 
 describe('NotificationService', () => {
+  const mockRabbitMQConfig: RabbitMQConfig = {
+    url: 'amqp://localhost:5672',
+    queueName: 'testQueue',
+    login: 'guest',
+    password: 'guest',
+  };
   let notificationService: NotificationService;
-  let rabbitMQConfig: RabbitMQConfig;
-  let mockChannel: Channel;
-  let mockConnection: Connection;
 
-  beforeEach(async () => {
-    mockChannel = {
-      sendToQueue: jest.fn(),
-      assertQueue: jest.fn(),
-      on: jest.fn(),
-      close: jest.fn(),
-    } as unknown as Channel;
-
-    mockConnection = {
-      createChannel: jest.fn().mockResolvedValue(mockChannel),
-      on: jest.fn(),
-      close: jest.fn(),
-    } as unknown as Connection;
-
-    rabbitMQConfig = {
-      url: 'amqp://guest:guest@localhost:1:5672/',
-      queueName: 'notifications',
-      login: 'guest',
-      password: 'guest',
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        NotificationService,
-        {
-          provide: RabbitMQConfig,
-          useValue: rabbitMQConfig,
-        },
-      ],
-    }).compile();
-
-    notificationService = module.get<NotificationService>(NotificationService);
+  beforeEach(() => {
+    notificationService = new NotificationService(mockRabbitMQConfig);
   });
 
-  afterEach(async () => {});
+  afterEach(async () => {
+    await notificationService.onApplicationShutdown();
+  });
 
-  it('should send email notification', async () => {
-    const email = 'example@example.com';
-    const message = 'Test message';
+  describe('sendEmailNotification', () => {
+    it('should send email notification', async () => {
+      const mockAssertQueue = jest.fn();
+      const mockSendToQueue = jest.fn();
+      const mockChannel = {
+        assertQueue: mockAssertQueue,
+        sendToQueue: mockSendToQueue,
+      };
+      const mockCreateChannel = jest.fn().mockResolvedValue(mockChannel);
+      const mockConnection = {
+        createChannel: mockCreateChannel,
+      };
+      const mockConnect = jest.fn().mockResolvedValue(mockConnection);
+      jest
+        .spyOn(notificationService as any, 'getConnection')
+        .mockReturnValue(mockConnect);
 
-    await notificationService.sendEmailNotification(email, message);
+      const email = 'john.doe@example.com';
+      const message = 'Hello, world!';
+      await notificationService.sendEmailNotification(email, message);
 
-    expect(connect).toHaveBeenCalledWith(rabbitMQConfig.url);
-    expect(mockConnection.createChannel).toHaveBeenCalled();
-    expect(mockChannel.assertQueue).toHaveBeenCalledWith(
-      rabbitMQConfig.queueName,
-      {
-        durable: true,
-      },
-    );
-    expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
-      rabbitMQConfig.queueName,
-      Buffer.from(JSON.stringify({ email, message })),
-      { persistent: true },
-    );
+      expect(mockConnect).toHaveBeenCalledWith(mockRabbitMQConfig.url);
+      expect(mockConnection.createChannel).toHaveBeenCalled();
+      expect(mockAssertQueue).toHaveBeenCalledWith(
+        mockRabbitMQConfig.queueName,
+        {
+          durable: true,
+        },
+      );
+      expect(mockSendToQueue).toHaveBeenCalledWith(
+        mockRabbitMQConfig.queueName,
+        Buffer.from(JSON.stringify({ email, message })),
+        { persistent: true },
+      );
+    });
   });
 });

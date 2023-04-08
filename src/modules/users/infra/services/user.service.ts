@@ -29,7 +29,10 @@ export class UserService {
       throw new BadRequestException('Failed to create user');
     }
     const message = `Your account has been created successfully`;
-    this.notificationService.sendEmailNotification(createdUser.email, message);
+    await this.notificationService.sendEmailNotification(
+      createdUser.email,
+      message,
+    );
     return createdUser;
   }
 }
