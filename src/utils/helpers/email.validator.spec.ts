@@ -17,5 +17,32 @@ describe('EmailService', () => {
       const isValid = await emailService.validateEmail('invalidemail');
       expect(isValid).toBe(false);
     });
+
+    it('should return false for email with spaces', async () => {
+      const isValid = await emailService.validateEmail(
+        'invalid email@test.com',
+      );
+      expect(isValid).toBe(false);
+    });
+
+    it('should return false for email without domain', async () => {
+      const isValid = await emailService.validateEmail('invalidemail@');
+      expect(isValid).toBe(false);
+    });
+
+    it('should return false for email without username', async () => {
+      const isValid = await emailService.validateEmail('@test.com');
+      expect(isValid).toBe(false);
+    });
+
+    it('should return false for email with invalid domain', async () => {
+      const isValid = await emailService.validateEmail('invalidemail@test.');
+      expect(isValid).toBe(false);
+    });
+
+    it('should return false for email with invalid characters in domain', async () => {
+      const isValid = await emailService.validateEmail('invalidemail@test.!');
+      expect(isValid).toBe(false);
+    });
   });
 });

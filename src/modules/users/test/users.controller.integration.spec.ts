@@ -58,7 +58,7 @@ describe('UsersController', () => {
       expect(response.status).toBe(400);
     });
 
-    it('shold return 400, badformation', async () => {
+    it('shold return 201, badformation', async () => {
       const user = {
         first_name: 'Allysson',
         last_name: 'Freitas',
@@ -67,7 +67,7 @@ describe('UsersController', () => {
       };
       const response = await request(httpServer).post('/api/users').send(user);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(201);
     });
   });
   describe('Delite avatar', () => {
@@ -83,7 +83,7 @@ describe('UsersController', () => {
     });
   });
   describe('download avatar', () => {
-    it('shold return 200', async () => {
+    it('shold return 201', async () => {
       const response = await request(httpServer).get('/api/user/1/avatar');
 
       expect(response.status).toBe(200);

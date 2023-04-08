@@ -25,7 +25,7 @@ export class UserRepository {
     }
 
     const isEmailValid = await this.emailValidation.validateEmail(user.email);
-    if (isEmailValid) {
+    if (!isEmailValid) {
       throw new BadRequestException();
     }
 

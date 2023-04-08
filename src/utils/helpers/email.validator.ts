@@ -1,13 +1,9 @@
-import { validate } from 'class-validator';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class EmailService {
   async validateEmail(email: string): Promise<boolean> {
-    const errors = await validate(
-      { email },
-      { validationError: { target: false } },
-    );
-    return errors.length === 0;
+    const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    return emailRegex.test(email);
   }
 }
