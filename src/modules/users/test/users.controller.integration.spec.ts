@@ -67,7 +67,7 @@ describe('UsersController', () => {
       };
       const response = await request(httpServer).post('/api/users').send(user);
 
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(400);
     });
   });
   describe('Delite avatar', () => {

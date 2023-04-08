@@ -9,7 +9,7 @@ export class AvatarService {
     private readonly imageService: ImageService,
   ) {}
 
-  async getUserAvatar(userId: number): Promise<string> {
+  async getUserAvatar(userId: number): Promise<any> {
     const user = await this.userRepository.getUserById(userId);
 
     if (!user) {
@@ -17,10 +17,20 @@ export class AvatarService {
     }
     try {
       const avatarBase64 = await this.imageService.downloadImage(user);
+      const image = {
+        imageId: user.id,
+        imageData: avatarBase64,
+      };
+
+      const newImage = await this.userRepository.saveImage(image);
+
+      const savedImage = await this.userRepository.findImageById(
+        newImage.imageId,
+      );
 
       return avatarBase64;
     } catch (e) {
-      throw Error('Error downloading image');
+      throw new Error('Error downloading image');
     }
   }
   async deleteAvatar(userId: number): Promise<void> {
@@ -30,7 +40,7 @@ export class AvatarService {
       throw new NotFoundException('Not Found');
     }
 
-    const dbUser = await this.userRepository.findByImageId(user.id);
+    const dbUser = await this.userRepository.findImageById(user.id);
 
     if (!dbUser) {
       throw new NotFoundException('Not Found');

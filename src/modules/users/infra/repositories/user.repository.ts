@@ -8,6 +8,7 @@ import {
 import { UserApi } from '../database/rest.api/user.api';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Image } from '../schemas/avatar.schema';
+import { EmailService } from '../../../../utils/helpers/email.validator';
 
 @Injectable()
 export class UserRepository {
@@ -15,10 +16,16 @@ export class UserRepository {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel('Image') private readonly imageModel: Model<Image>,
     private readonly userApi: UserApi,
+    private readonly emailValidation: EmailService,
   ) {}
 
   async createUser(user: any) {
     if (!user.email || !user.first_name || !user.last_name || !user.avatar) {
+      throw new BadRequestException();
+    }
+
+    const isEmailValid = await this.emailValidation.validateEmail(user.email);
+    if (!isEmailValid) {
       throw new BadRequestException();
     }
 
@@ -29,9 +36,10 @@ export class UserRepository {
 
     try {
       const createdUser = new this.userModel(user);
-      return createdUser.save();
+      const newUser = createdUser.save();
+      return newUser;
     } catch (e) {
-      throw new Error('Not found');
+      throw new Error('Create user failed');
     }
   }
 
@@ -39,10 +47,29 @@ export class UserRepository {
     return await this.userApi.findById(userId);
   }
   async findByEmail(email: string): Promise<any> {
-    return this.userModel.findOne({ email }).exec();
+    const user = this.userModel.findOne({ email });
+    if (!user) {
+      return null;
+    }
+    return user.exec();
   }
-  async findByImageId(imageId: string): Promise<any> {
-    return this.imageModel.findOne({ imageId }).exec();
+
+  async saveImage(image: any): Promise<Image> {
+    try {
+      const savedImage = new this.imageModel(image);
+      return await savedImage.save();
+    } catch (err) {
+      throw new Error(`Failed to save image: ${err.message}`);
+    }
+  }
+
+  async findImageById(imageId: string): Promise<Image> {
+    try {
+      const image = await this.imageModel.findOne({ imageId: imageId }).exec();
+      return image;
+    } catch (err) {
+      throw new Error(`Failed to find image by id: ${err.message}`);
+    }
   }
 
   async removeEntryFromDB(imageId: string): Promise<void> {

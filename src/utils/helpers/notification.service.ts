@@ -11,7 +11,12 @@ export class NotificationService implements OnApplicationShutdown {
 
   async sendEmailNotification(email: string, message: string): Promise<void> {
     if (!this.connection) {
-      this.connection = await connect(this.rabbitMQConfig.url);
+      const { url, login, password } = this.rabbitMQConfig;
+      const connectionUrl = url.replace(
+        'amqp://',
+        `amqp://${login}:${password}@`,
+      );
+      this.connection = await connect(connectionUrl);
       this.connection.on('error', (err) => {
         console.error('RabbitMQ connection error:', err.message);
       });

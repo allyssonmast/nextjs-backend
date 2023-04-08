@@ -15,6 +15,7 @@ import { RabbitMQConfig } from '../../../utils/helpers/rabbit.config';
 import { ImageService } from '../../../utils/helpers/image.service';
 import { ImageSchema } from '../infra/schemas/avatar.schema';
 import { UserAlreadyExistsFilter } from '../../../utils/errors/user.already.exist';
+import { EmailService } from '../../..//utils/helpers/email.validator';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UserAlreadyExistsFilter } from '../../../utils/errors/user.already.exis
     NotificationService,
     RabbitMQConfig,
     ImageService,
+    EmailService,
     UserAlreadyExistsFilter,
   ],
 })
