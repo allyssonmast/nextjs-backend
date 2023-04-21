@@ -1,7 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import * as request from 'supertest';
-import { userStub } from './stubs/user.stubs';
 import { AppModule } from '../../../app.module';
 import { DatabaseService } from '../../../modules/database/database.service';
 

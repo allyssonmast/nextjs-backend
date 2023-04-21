@@ -49,7 +49,7 @@ export class NotificationService implements OnApplicationShutdown {
     await this.closeConnection();
   }
 
-  private async closeConnection(): Promise<void> {
+  async closeConnection(): Promise<void> {
     try {
       if (this.channel) {
         await this.channel.close();

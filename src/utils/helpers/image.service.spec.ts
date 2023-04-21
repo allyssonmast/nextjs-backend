@@ -1,5 +1,5 @@
 import { ImageService } from './image.service';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
 
 jest.mock('axios');
 
