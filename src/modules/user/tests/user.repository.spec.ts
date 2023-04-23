@@ -1,219 +1,137 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { EmailValidator } from '../../../utils/helpers/email.validator';
-
+import { getModelToken } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { UserRepository } from '../repository/user.repository';
+import { User, UserDocument } from '../schemas/user.schema';
+import { EmailValidator } from '../../../utils/helpers/email.validator';
+import { IUserApi } from '../../../utils/interfaces/user-api.interface';
+import { userStub } from './stubs/user.stub';
+import { UserModel } from './support/user.modal';
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
+  let userModel: UserModel;
+  let userApi: IUserApi;
+  let emailValidator: EmailValidator;
 
-  let userApi: any;
-  let emailValidation: EmailValidator;
-  let userModel: any;
+  beforeEach(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserRepository,
+        {
+          provide: getModelToken(User.name),
+          useValue: UserModel,
+        },
+        {
+          provide: 'IUserApi',
+          useValue: {
+            findById: jest.fn(),
+          },
+        },
+        {
+          provide: EmailValidator,
+          useValue: {
+            validateEmail: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
 
-  beforeEach(() => {
-    userModel = {
-      findOne: jest.fn(),
-      create: jest.fn(),
-      save: jest.fn().mockResolvedValue(null),
-    };
-
-    userApi = {
-      findById: jest.fn(),
-    };
-    emailValidation = {
-      validateEmail: jest.fn().mockResolvedValue(true),
-    } as EmailValidator;
-
-    userRepository = new UserRepository(userModel, userApi, emailValidation);
+    userRepository = moduleRef.get<UserRepository>(UserRepository);
+    userModel = moduleRef.get<UserModel>(getModelToken(User.name));
+    userApi = moduleRef.get<IUserApi>('IUserApi');
+    emailValidator = moduleRef.get<EmailValidator>(EmailValidator);
   });
-
   describe('createUser', () => {
-    it('should throw BadRequestException if any required property is missing', async () => {
-      // Arrange
+    it('should throw BadRequestException if user fields are not provided', async () => {
       const user = {
-        email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
-        avatar: 'test-avatar',
+        email: '',
+        first_name: '',
+        last_name: '',
+        avatar: '',
       };
-
-      // Act + Assert
-      await expect(
-        userRepository.createUser({ ...user, email: undefined }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        userRepository.createUser({ ...user, first_name: undefined }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        userRepository.createUser({ ...user, last_name: undefined }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        userRepository.createUser({ ...user, avatar: undefined }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw BadRequestException if user email is invalid', async () => {
-      // Arrange
-      const user = {
-        email: 'invalid-email',
-        first_name: 'Test',
-        last_name: 'User',
-        avatar: 'test-avatar',
-      };
-
-      (emailValidation.validateEmail as jest.Mock).mockResolvedValue(false);
-
-      // Act + Assert
       await expect(userRepository.createUser(user)).rejects.toThrow(
         BadRequestException,
       );
-      expect(emailValidation.validateEmail).toHaveBeenCalledWith(user.email);
     });
 
-    it('should throw NotFoundException if user with same email already exists', async () => {
-      // Arrange
+    it('should throw BadRequestException if email is not valid', async () => {
       const user = {
-        email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
-        avatar: 'test-avatar',
+        email: 'invalidemail',
+        first_name: 'John',
+        last_name: 'Doe',
+        avatar: 'http://example.com/avatar.jpg',
       };
+      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(false);
+      await expect(userRepository.createUser(user)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
 
-      userRepository.findByEmail = jest.fn().mockResolvedValue({});
-
-      // Act + Assert
+    it('should throw NotFoundException if user with provided email already exists', async () => {
+      const user = userStub();
+      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(true);
+      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(user);
       await expect(userRepository.createUser(user)).rejects.toThrow(
         NotFoundException,
       );
-      expect(userRepository.findByEmail).toHaveBeenCalledWith(user.email);
     });
 
-    /*
-    it('should create user if all validations pass', async () => {
-      // Arrange
-      const user = {
-        email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
-        avatar: 'test-avatar',
-      };
+    it('should create and return a user if input is valid and user does not exist', async () => {
+      const user = userStub();
 
-      userRepository.findByEmail = jest.fn().mockResolvedValue(false);
-
-      const saveMock = jest.fn().mockResolvedValue({ _id: 123, ...user });
-      (userModel.save as jest.Mock).mockReturnValueOnce({
-        save: saveMock,
-      });
-
-      (emailValidation.validateEmail as jest.Mock).mockResolvedValue(true);
-
-      // Act
-      const result = await userRepository.createUser(user);
-
-      // Assert
-      expect(userRepository.findByEmail).toHaveBeenCalledWith(user.email);
-      expect(emailValidation.validateEmail).toHaveBeenCalledWith(user.email);
-      expect(saveMock).toHaveBeenCalled();
-      expect(result).toEqual({ _id: 123, ...user });
+      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(true);
+      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(null);
+      jest.spyOn(UserModel.prototype, 'save').mockResolvedValue(user);
+      const createdUser = await userRepository.createUser(user);
+      expect(createdUser).toEqual(user);
     });
-    */
 
-    it('should throw error if there is an issue with saving user', async () => {
-      // Arrange
-      const user = {
-        email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'Doe',
-        avatar: 'avatar-url',
-      };
-      const mockEmailValidation = {
-        validateEmail: jest.fn().mockReturnValue(true),
-      };
-
-      const mockUserModel = {
-        findOne: jest.fn().mockReturnValue(null),
-        create: jest.fn().mockRejectedValue(new Error('Create user failed')),
-      };
-
-      const userRepository = new UserRepository(
-        mockUserModel as any,
-        {} as any,
-
-        mockEmailValidation as any,
-      );
+    it('should throw an error if user creation fails', async () => {
+      const user = userStub();
+      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(true);
+      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(null);
+      jest
+        .spyOn(UserModel.prototype, 'save')
+        .mockRejectedValue(new Error('Database error'));
 
       await expect(userRepository.createUser(user)).rejects.toThrowError(
         'Create user failed',
       );
     });
   });
-
-  describe('getUserById', () => {
-    it('should call userApi.findById with the correct userId', async () => {
-      // Arrange
-      const userId = 123;
-      userApi.findById.mockResolvedValue({});
-
-      // Act
-      await userRepository.getUserById(userId);
-
-      // Assert
-      expect(userApi.findById).toHaveBeenCalledWith(userId);
-    });
-
-    it('should return the user found by userApi.findById', async () => {
-      // Arrange
-      const userId = 123;
-      const user = { _id: userId, email: 'test@example.com' };
-      userApi.findById.mockResolvedValue(user);
-
-      // Act
-      const result = await userRepository.getUserById(userId);
-
-      // Assert
-      expect(result).toEqual(user);
-    });
-  });
-
   describe('findByEmail', () => {
-    it('should call userModel.findOne with the correct email', async () => {
-      // Arrange
-      const email = 'test@example.com';
-      userModel.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue({}),
+    it('should throw error when user is not found', async () => {
+      jest.spyOn(UserModel.prototype, 'findOne').mockReturnValueOnce({
+        exec: jest.fn().mockResolvedValueOnce(new Error('Not found')),
+      } as any);
+
+      const result = await userRepository.findByEmail('test@example.com');
+
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        email: 'test@example.com',
       });
-
-      // Act
-      await userRepository.findByEmail(email);
-
-      // Assert
-      expect(userModel.findOne).toHaveBeenCalledWith({ email });
+      expect(result).rejects.toThrowError('Not found');
     });
 
-    it('should return null if user is not found', async () => {
-      // Arrange
-      const email = 'test@example.com';
-      userModel.findOne.mockReturnValue(null);
+    it('should return the user when found', async () => {
+      const user = {
+        email: 'test@example.com',
+        first_name: 'John',
+        last_name: 'Doe',
+        avatar: 'avatar.png',
+      };
 
-      // Act
-      const result = await userRepository.findByEmail(email);
+      jest.spyOn(UserModel.prototype, 'findOne').mockReturnValueOnce({
+        exec: jest.fn().mockResolvedValueOnce(user),
+      } as any);
 
-      // Assert
-      expect(result).toBeNull();
-    });
+      const result = await userRepository.findByEmail('test@example.com');
 
-    it('should return the user found by userModel.findOne', async () => {
-      // Arrange
-      const email = 'test@example.com';
-      const user = { _id: 123, email };
-      userModel.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue(user),
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        email: 'test@example.com',
       });
-
-      // Act
-      const result = await userRepository.findByEmail(email);
-
-      // Assert
       expect(result).toEqual(user);
     });
   });

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Avatar } from '../schemas/avatar.schema';
-import { FilterQuery } from 'mongoose';
 import { IUserApi } from 'src/utils/interfaces/user-api.interface';
 import { AvatarRepository } from '../repository/avatar.repository';
 import { AvatarModel } from './support/avatar.model';
@@ -11,8 +10,7 @@ describe('AvatarRepository', () => {
   let avatarRepository: AvatarRepository;
   let userModel: AvatarModel;
   let userApi: IUserApi;
-  const exec = { exec: jest.fn() };
-  let userFilterQuery: FilterQuery<Avatar>;
+
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -33,9 +31,6 @@ describe('AvatarRepository', () => {
     avatarRepository = moduleRef.get<AvatarRepository>(AvatarRepository);
     userModel = moduleRef.get<AvatarModel>(getModelToken(Avatar.name));
     userApi = moduleRef.get<IUserApi>('IUserApi');
-    userFilterQuery = {
-      userId: avatarStub().imageId,
-    };
 
     jest.clearAllMocks();
   });
@@ -59,22 +54,61 @@ describe('AvatarRepository', () => {
   describe('saveImage', () => {
     it('should call imageModel.save with the given image', async () => {
       const image = new Avatar();
-      const spy = jest.spyOn(userModel, 'save');
+      const spy = jest.spyOn(AvatarModel.prototype, 'save');
 
       await avatarRepository.saveImage(image);
 
       expect(spy).toHaveBeenCalledWith();
+    });
+    it('should throw an error if imageModel.save throws an error', async () => {
+      const image = new Avatar();
+      const saveSpy = jest
+        .spyOn(AvatarModel.prototype, 'save')
+        .mockImplementation(() => {
+          throw new Error('Some error occurred');
+        });
+
+      await expect(avatarRepository.saveImage(image)).rejects.toThrowError(
+        /Failed to save image/,
+      );
+      expect(saveSpy).toHaveBeenCalledWith(image);
     });
   });
 
   describe('findImageById', () => {
     it('should call imageModel.findOne with the given imageId', async () => {
       const imageId = '1';
-      const spy = jest.spyOn(userModel, 'findOne');
+      const spy = jest.spyOn(AvatarModel.prototype, 'findOne');
 
-      await avatarRepository.findImageById(imageId);
+      const result = await avatarRepository.findImageById(imageId);
 
       expect(spy).toHaveBeenCalledWith({ imageId });
+      expect(result).toEqual(avatarStub());
+    });
+    it('should throw an error if imageModel.findOne throws an error', async () => {
+      const imageId = '1';
+      const findOneSpy = jest
+        .spyOn(userModel, 'findOne')
+        .mockImplementation(() => {
+          throw new Error('Some error occurred');
+        });
+
+      await expect(
+        avatarRepository.findImageById(imageId),
+      ).rejects.toThrowError(/Failed to find image by id/);
+      expect(findOneSpy).toHaveBeenCalledWith({ imageId });
+    });
+
+    it('should throw an error if imageModel.findOne returns null', async () => {
+      const imageId = '1';
+      const findOneSpy = jest.spyOn(userModel, 'findOne').mockReturnValue(null);
+
+      await expect(
+        avatarRepository.findImageById(imageId),
+      ).rejects.toThrowError(
+        "Failed to find image by id: Cannot read properties of null (reading 'exec')",
+      );
+      expect(findOneSpy).toHaveBeenCalledWith({ imageId });
     });
   });
 
@@ -86,6 +120,19 @@ describe('AvatarRepository', () => {
       await avatarRepository.removeEntryFromDB(imageId);
 
       expect(spy).toHaveBeenCalledWith({ imageId });
+    });
+    it('should throw an error if imageModel.deleteOne throws an error', async () => {
+      const imageId = '1';
+      const deleteOneSpy = jest
+        .spyOn(userModel, 'deleteOne')
+        .mockImplementation(() => {
+          throw new Error('Some error occurred');
+        });
+
+      await expect(
+        avatarRepository.removeEntryFromDB(imageId),
+      ).rejects.toThrowError(/Failed to remove avatar entry from DB/);
+      expect(deleteOneSpy).toHaveBeenCalledWith({ imageId });
     });
   });
 });

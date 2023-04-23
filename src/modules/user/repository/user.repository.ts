@@ -36,7 +36,7 @@ export class UserRepository implements IUserRepository {
 
     try {
       const createdUser = new this.userModel(user);
-      return createdUser.save();
+      return await createdUser.save();
     } catch (e) {
       throw new Error('Create user failed');
     }
@@ -46,10 +46,11 @@ export class UserRepository implements IUserRepository {
     return await this.userApi.findById(userId);
   }
   async findByEmail(email: string): Promise<any> {
-    const user = this.userModel.findOne({ email });
-    if (!user) {
-      return null;
+    try {
+      const user = this.userModel.findOne({ email });
+      return await user.exec();
+    } catch (e) {
+      throw new Error('Not found');
     }
-    return user.exec();
   }
 }
