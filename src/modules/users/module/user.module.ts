@@ -15,7 +15,7 @@ import { RabbitMQConfig } from '../../../utils/helpers/rabbit.config';
 import { ImageService } from '../../../utils/helpers/image.service';
 import { ImageSchema } from '../infra/schemas/avatar.schema';
 import { UserAlreadyExistsFilter } from '../../../utils/errors/user.already.exist';
-import { EmailService } from '../../..//utils/helpers/email.validator';
+import { EmailValidator } from '../../..//utils/helpers/email.validator';
 
 @Module({
   imports: [
@@ -27,14 +27,25 @@ import { EmailService } from '../../..//utils/helpers/email.validator';
   controllers: [UserController, UsersController, AvatarController],
   providers: [
     UserService,
-    AvatarService,
-    UserRepository,
-    UserApi,
+    {
+      provide: 'IAvatarService',
+      useClass: AvatarService,
+    },
+
+    {
+      provide: 'IUserRepository',
+      useClass: UserRepository,
+    },
+    {
+      provide: 'IUserApi',
+      useClass: UserApi,
+    },
     NotificationService,
     RabbitMQConfig,
     ImageService,
-    EmailService,
+    EmailValidator,
     UserAlreadyExistsFilter,
   ],
+  exports: ['IUserApi'],
 })
 export class UserModule {}

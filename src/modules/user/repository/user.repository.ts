@@ -7,21 +7,19 @@ import {
   Inject,
 } from '@nestjs/common';
 import { User, UserDocument } from '../schemas/user.schema';
-import { Image } from '../schemas/avatar.schema';
-import { EmailValidator } from '../../../../utils/helpers/email.validator';
-import { IUserApi } from '../../../../utils/interfaces/user-api.interface';
-import { IUserRepository } from 'src/utils/interfaces/user.repository.interface';
+import { EmailValidator } from '../../../utils/helpers/email.validator';
+import { IUserApi } from 'src/utils/interfaces/user-api.interface';
+import { IUserRepository } from '../interfaces/user.repository.interface';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @InjectModel('Image') private readonly imageModel: Model<Image>,
     @Inject('IUserApi') private readonly userApi: IUserApi,
     private readonly emailValidation: EmailValidator,
   ) {}
 
-  async createUser(user: any) {
+  async createUser(user: any): Promise<User> {
     if (!user.email || !user.first_name || !user.last_name || !user.avatar) {
       throw new BadRequestException();
     }
@@ -38,8 +36,7 @@ export class UserRepository implements IUserRepository {
 
     try {
       const createdUser = new this.userModel(user);
-      const newUser = createdUser.save();
-      return newUser;
+      return createdUser.save();
     } catch (e) {
       throw new Error('Create user failed');
     }
@@ -54,31 +51,5 @@ export class UserRepository implements IUserRepository {
       return null;
     }
     return user.exec();
-  }
-
-  async saveImage(image: any): Promise<Image> {
-    try {
-      const savedImage = new this.imageModel(image);
-      return await savedImage.save();
-    } catch (err) {
-      throw new Error(`Failed to save image: ${err.message}`);
-    }
-  }
-
-  async findImageById(imageId: string): Promise<Image> {
-    try {
-      const image = await this.imageModel.findOne({ imageId: imageId }).exec();
-      return image;
-    } catch (err) {
-      throw new Error(`Failed to find image by id: ${err.message}`);
-    }
-  }
-
-  async removeEntryFromDB(imageId: string): Promise<void> {
-    try {
-      await this.imageModel.deleteOne({ imageId }).exec();
-    } catch (err) {
-      throw new Error(`Failed to remove avatar entry from DB: ${err.message}`);
-    }
   }
 }

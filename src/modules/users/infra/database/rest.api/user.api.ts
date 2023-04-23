@@ -1,7 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
+import { IUserApi } from 'src/utils/interfaces/user-api.interface';
 
-export class UserApi {
+export class UserApi implements IUserApi {
   readonly baseUrl = 'https://reqres.in/api';
   async findById(userId: number): Promise<any> {
     try {

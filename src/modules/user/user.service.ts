@@ -4,13 +4,13 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common';
-import { UserRepository } from '../repositories/user.repository';
-import { NotificationService } from '../../../../utils/helpers/notification.service';
+import { IUserRepository } from './interfaces/user.repository.interface';
+import { NotificationService } from '../../utils/helpers/notification.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('IUserRepository') private readonly userRepository: UserRepository,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     private readonly notificationService: NotificationService,
   ) {}
 

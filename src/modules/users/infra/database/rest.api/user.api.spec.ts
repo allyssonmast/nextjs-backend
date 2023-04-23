@@ -1,11 +1,12 @@
 import axios from 'axios';
 
 import MockAdapter from 'axios-mock-adapter';
+import { IUserApi } from 'src/utils/interfaces/user-api.interface';
 
 import { UserApi } from './user.api';
 
 describe('UserApi', () => {
-  let userApi: UserApi;
+  let userApi: IUserApi;
   let axiosMock: MockAdapter;
 
   beforeEach(() => {

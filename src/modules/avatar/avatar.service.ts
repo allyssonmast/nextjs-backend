@@ -1,17 +1,18 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { ImageService } from '../../../../utils/helpers/image.service';
-import { IUserRepository } from 'src/utils/interfaces/user.repository.interface';
-import { IAvatarService } from 'src/utils/interfaces/avatar.service.interface';
+import { ImageService } from '../../utils/helpers/image.service';
+import { IAvatarService } from './interfaces/avatar.service.interface';
+import { IAvatarRepository } from './interfaces/avatar.repository.interface';
 
 @Injectable()
 export class AvatarService implements IAvatarService {
   constructor(
-    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('IAvatarRepository')
+    private readonly avatarRepository: IAvatarRepository,
     private readonly imageService: ImageService,
   ) {}
 
   async getUserAvatar(userId: number): Promise<any> {
-    const user = await this.userRepository.getUserById(userId);
+    const user = await this.avatarRepository.getUserById(userId);
 
     if (!user) {
       throw new NotFoundException('Not found');
@@ -23,9 +24,9 @@ export class AvatarService implements IAvatarService {
         imageData: avatarBase64,
       };
 
-      const newImage = await this.userRepository.saveImage(image);
+      const newImage = await this.avatarRepository.saveImage(image);
 
-      const savedImage = await this.userRepository.findImageById(
+      const savedImage = await this.avatarRepository.findImageById(
         newImage.imageId,
       );
 
@@ -35,18 +36,18 @@ export class AvatarService implements IAvatarService {
     }
   }
   async deleteAvatar(userId: number): Promise<void> {
-    const user = await this.userRepository.getUserById(userId);
+    const user = await this.avatarRepository.getUserById(userId);
 
     if (!user) {
       throw new NotFoundException('Not Found');
     }
 
-    const dbUser = await this.userRepository.findImageById(user.id);
+    const dbUser = await this.avatarRepository.findImageById(user.id);
 
     if (!dbUser) {
       throw new NotFoundException('Not Found');
     }
 
-    await this.userRepository.removeEntryFromDB(user.id);
+    await this.avatarRepository.removeEntryFromDB(user.id);
   }
 }

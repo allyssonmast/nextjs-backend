@@ -1,10 +1,10 @@
-import { EmailService } from './email.validator';
+import { EmailValidator } from './email.validator';
 
 describe('EmailService', () => {
-  let emailService: EmailService;
+  let emailService: EmailValidator;
 
   beforeEach(() => {
-    emailService = new EmailService();
+    emailService = new EmailValidator();
   });
 
   describe('validateEmail', () => {

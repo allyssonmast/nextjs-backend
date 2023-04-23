@@ -1,12 +1,11 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { EmailValidator } from '../../../../utils/helpers/email.validator';
-import { Image } from '../schemas/avatar.schema';
-import { UserRepository } from './user.repository';
+import { EmailValidator } from '../../../utils/helpers/email.validator';
+
+import { UserRepository } from '../repository/user.repository';
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
-  let imageModel: Model<Image>;
+
   let userApi: any;
   let emailValidation: EmailValidator;
   let userModel: any;
@@ -17,18 +16,15 @@ describe('UserRepository', () => {
       create: jest.fn(),
       save: jest.fn().mockResolvedValue(null),
     };
-    imageModel = {} as any;
-    userApi = {} as any;
+
+    userApi = {
+      findById: jest.fn(),
+    };
     emailValidation = {
       validateEmail: jest.fn().mockResolvedValue(true),
     } as EmailValidator;
 
-    userRepository = new UserRepository(
-      userModel,
-      imageModel,
-      userApi,
-      emailValidation,
-    );
+    userRepository = new UserRepository(userModel, userApi, emailValidation);
   });
 
   describe('createUser', () => {
@@ -142,13 +138,83 @@ describe('UserRepository', () => {
       const userRepository = new UserRepository(
         mockUserModel as any,
         {} as any,
-        {} as any,
+
         mockEmailValidation as any,
       );
 
       await expect(userRepository.createUser(user)).rejects.toThrowError(
         'Create user failed',
       );
+    });
+  });
+
+  describe('getUserById', () => {
+    it('should call userApi.findById with the correct userId', async () => {
+      // Arrange
+      const userId = 123;
+      userApi.findById.mockResolvedValue({});
+
+      // Act
+      await userRepository.getUserById(userId);
+
+      // Assert
+      expect(userApi.findById).toHaveBeenCalledWith(userId);
+    });
+
+    it('should return the user found by userApi.findById', async () => {
+      // Arrange
+      const userId = 123;
+      const user = { _id: userId, email: 'test@example.com' };
+      userApi.findById.mockResolvedValue(user);
+
+      // Act
+      const result = await userRepository.getUserById(userId);
+
+      // Assert
+      expect(result).toEqual(user);
+    });
+  });
+
+  describe('findByEmail', () => {
+    it('should call userModel.findOne with the correct email', async () => {
+      // Arrange
+      const email = 'test@example.com';
+      userModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({}),
+      });
+
+      // Act
+      await userRepository.findByEmail(email);
+
+      // Assert
+      expect(userModel.findOne).toHaveBeenCalledWith({ email });
+    });
+
+    it('should return null if user is not found', async () => {
+      // Arrange
+      const email = 'test@example.com';
+      userModel.findOne.mockReturnValue(null);
+
+      // Act
+      const result = await userRepository.findByEmail(email);
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should return the user found by userModel.findOne', async () => {
+      // Arrange
+      const email = 'test@example.com';
+      const user = { _id: 123, email };
+      userModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(user),
+      });
+
+      // Act
+      const result = await userRepository.findByEmail(email);
+
+      // Assert
+      expect(result).toEqual(user);
     });
   });
 });
