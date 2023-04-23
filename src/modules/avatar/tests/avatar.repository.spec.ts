@@ -43,44 +43,49 @@ describe('AvatarRepository', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
-
   describe('getUserById', () => {
     it('should call userApi.findById with the given userId', async () => {
       const userId = 1;
+      const findByIdSpy = jest
+        .spyOn(userApi, 'findById')
+        .mockResolvedValueOnce(undefined);
 
       await avatarRepository.getUserById(userId);
 
-      expect(userApi.findById).toHaveBeenCalledWith(userId);
+      expect(findByIdSpy).toHaveBeenCalledWith(userId);
     });
   });
 
   describe('saveImage', () => {
     it('should call imageModel.save with the given image', async () => {
       const image = new Avatar();
+      const spy = jest.spyOn(userModel, 'save');
 
       await avatarRepository.saveImage(image);
 
-      expect(userModel.save).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith();
     });
   });
 
   describe('findImageById', () => {
     it('should call imageModel.findOne with the given imageId', async () => {
       const imageId = '1';
+      const spy = jest.spyOn(userModel, 'findOne');
 
       await avatarRepository.findImageById(imageId);
 
-      expect(userModel.findOne).toHaveBeenCalledWith({ imageId: imageId });
+      expect(spy).toHaveBeenCalledWith({ imageId });
     });
   });
 
   describe('removeEntryFromDB', () => {
     it('should call imageModel.deleteOne with the given imageId', async () => {
       const imageId = '1';
+      const spy = jest.spyOn(userModel, 'deleteOne');
 
       await avatarRepository.removeEntryFromDB(imageId);
 
-      expect(userModel.deleteOne).toHaveBeenCalledWith({ imageId: imageId });
+      expect(spy).toHaveBeenCalledWith({ imageId });
     });
   });
 });
