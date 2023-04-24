@@ -1,16 +1,10 @@
 module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    testMatch: [
-      '<rootDir>/test/**/*.spec.ts',
-    ],
-    coverageDirectory: 'coverage/e2e',
-    collectCoverageFrom: [
-      'test/**/*.ts',
-      '!test/**/*.spec.ts',
-    ],
-    coverageProvider: 'v8',
-    clearMocks: true,
-    maxWorkers: 1,
-  };
-  
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testMatch: ['<rootDir>/src/modules/**/*.(test).ts'],
+  coverageDirectory: 'coverage/e2e',
+  collectCoverageFrom: ['modules/test/**/*.ts', '!modules/test/**/*.test.ts'],
+  coverageProvider: 'v8',
+  clearMocks: true,
+  maxWorkers: 1,
+};

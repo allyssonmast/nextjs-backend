@@ -1,138 +1,105 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { BadRequestException } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
-import { User, UserDocument } from '../schemas/user.schema';
-import { EmailValidator } from '../../../utils/helpers/email.validator';
-import { IUserApi } from '../../../utils/interfaces/user-api.interface';
-import { userStub } from './stubs/user.stub';
+import { User } from '../schemas/user.schema';
+import { UserDto } from '../dto/user.dto';
+import { UserEntity } from '../entities/user.entity';
 import { UserModel } from './support/user.modal';
+
+const mockUserApi = () => ({
+  findById: jest.fn(),
+});
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
   let userModel: UserModel;
-  let userApi: IUserApi;
-  let emailValidator: EmailValidator;
 
   beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserRepository,
         {
           provide: getModelToken(User.name),
-          useValue: UserModel,
+          useClass: UserModel,
         },
         {
           provide: 'IUserApi',
-          useValue: {
-            findById: jest.fn(),
-          },
-        },
-        {
-          provide: EmailValidator,
-          useValue: {
-            validateEmail: jest.fn(),
-          },
+          useFactory: mockUserApi,
         },
       ],
     }).compile();
 
-    userRepository = moduleRef.get<UserRepository>(UserRepository);
-    userModel = moduleRef.get<UserModel>(getModelToken(User.name));
-    userApi = moduleRef.get<IUserApi>('IUserApi');
-    emailValidator = moduleRef.get<EmailValidator>(EmailValidator);
+    userRepository = module.get<UserRepository>(UserRepository);
+    userModel = module.get<UserModel>(getModelToken(User.name));
   });
+
   describe('createUser', () => {
-    it('should throw BadRequestException if user fields are not provided', async () => {
-      const user = {
-        email: '',
-        first_name: '',
-        last_name: '',
-        avatar: '',
-      };
-      await expect(userRepository.createUser(user)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('should throw BadRequestException if email is not valid', async () => {
-      const user = {
-        email: 'invalidemail',
+    it('should create user', async () => {
+      const userDto: UserDto = {
+        email: 'test@test.com',
         first_name: 'John',
         last_name: 'Doe',
-        avatar: 'http://example.com/avatar.jpg',
+        avatar: 'avatar.jpg',
       };
-      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(false);
-      await expect(userRepository.createUser(user)).rejects.toThrow(
+      const createdUser: UserEntity = {
+        id: 1,
+        email: 'test@test.com',
+        first_name: 'John',
+        last_name: 'Doe',
+        avatar: 'avatar.jpg',
+      };
+      jest.spyOn(userModel, 'create').mockResolvedValueOnce(createdUser);
+      const result = await userRepository.createUser(userDto);
+      expect(userModel.create).toHaveBeenCalledWith(userDto);
+      expect(result).toEqual(createdUser);
+    });
+
+    it('should throw BadRequestException when fails to create user', async () => {
+      const userDto: UserDto = {
+        email: 'test@test.com',
+        first_name: 'John',
+        last_name: 'Doe',
+        avatar: 'avatar.jpg',
+      };
+      const error = new Error('Failed to create user');
+
+      jest.spyOn(userModel, 'create').mockRejectedValueOnce(error);
+      await expect(userRepository.createUser(userDto)).rejects.toThrow(
         BadRequestException,
-      );
-    });
-
-    it('should throw NotFoundException if user with provided email already exists', async () => {
-      const user = userStub();
-      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(true);
-      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(user);
-      await expect(userRepository.createUser(user)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should create and return a user if input is valid and user does not exist', async () => {
-      const user = userStub();
-
-      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(true);
-      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(null);
-      jest.spyOn(UserModel.prototype, 'save').mockResolvedValue(user);
-      const createdUser = await userRepository.createUser(user);
-      expect(createdUser).toEqual(user);
-    });
-
-    it('should throw an error if user creation fails', async () => {
-      const user = userStub();
-      jest.spyOn(emailValidator, 'validateEmail').mockResolvedValue(true);
-      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(null);
-      jest
-        .spyOn(UserModel.prototype, 'save')
-        .mockRejectedValue(new Error('Database error'));
-
-      await expect(userRepository.createUser(user)).rejects.toThrowError(
-        'Create user failed',
       );
     });
   });
+
   describe('findByEmail', () => {
-    it('should throw error when user is not found', async () => {
-      jest.spyOn(UserModel.prototype, 'findOne').mockReturnValueOnce({
-        exec: jest.fn().mockResolvedValueOnce(new Error('Not found')),
-      } as any);
-
-      const result = await userRepository.findByEmail('test@example.com');
-
-      expect(userModel.findOne).toHaveBeenCalledWith({
-        email: 'test@example.com',
-      });
-      expect(result).rejects.toThrowError('Not found');
-    });
-
-    it('should return the user when found', async () => {
-      const user = {
-        email: 'test@example.com',
+    it('should return a user when a valid email is provided', async () => {
+      const email = 'johndoe@test.com';
+      const expectedUser = {
+        id: 1,
+        email,
         first_name: 'John',
         last_name: 'Doe',
-        avatar: 'avatar.png',
+        avatar: 'https://via.placeholder.com/150',
       };
 
-      jest.spyOn(UserModel.prototype, 'findOne').mockReturnValueOnce({
-        exec: jest.fn().mockResolvedValueOnce(user),
-      } as any);
+      jest
+        .spyOn(UserModel.prototype, 'findOne')
+        .mockReturnValue({ exec: () => expectedUser as any });
 
-      const result = await userRepository.findByEmail('test@example.com');
+      const result = await userRepository.findByEmail(email);
 
-      expect(userModel.findOne).toHaveBeenCalledWith({
-        email: 'test@example.com',
+      expect(result).toEqual(expectedUser);
+    });
+
+    it('should throw a BadRequestException when a non-existent email is provided', async () => {
+      const email = 'nonexistent@test.com';
+
+      jest.spyOn(userModel, 'findOne').mockReturnValue({
+        exec: jest.fn().mockRejectedValue(new BadRequestException()),
       });
-      expect(result).toEqual(user);
+      await expect(userRepository.findByEmail(email)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

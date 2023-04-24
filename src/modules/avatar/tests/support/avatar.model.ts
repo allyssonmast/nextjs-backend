@@ -1,4 +1,4 @@
-import { MockModel } from '../../../database/test/support/mock.model';
+import { MockModel } from '../../../database/mongoDB/test/support/mock.model';
 import { Avatar } from '../../schemas/avatar.schema';
 import { avatarStub } from '../stubs/avatar.stub';
 

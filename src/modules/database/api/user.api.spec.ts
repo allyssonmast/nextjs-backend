@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import MockAdapter from 'axios-mock-adapter';
-import { IUserApi } from 'src/utils/interfaces/user-api.interface';
+import { IUserApi } from 'src/modules/database/api/user-api.interface';
 
 import { UserApi } from './user.api';
 

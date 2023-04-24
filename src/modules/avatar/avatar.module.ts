@@ -1,13 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AvatarController } from './avatar.controller';
-
+import { MongooseModule } from '@nestjs/mongoose';
 import { AvatarService } from './avatar.service';
 
-import { ImageService } from 'src/utils/helpers/image.service';
-import { UserRepository } from '../users/infra/repositories/user.repository';
+import { ImageService } from '../../utils/helpers/image.service';
+import { UserApi } from '../database/api/user.api';
+import { AvatarSchema } from './schemas/avatar.schema';
+import { AvatarRepository } from './repository/avatar.repository';
 
 @Module({
   controllers: [AvatarController],
+  imports: [
+    MongooseModule.forFeature([{ name: 'Avatar', schema: AvatarSchema }]),
+  ],
   providers: [
     {
       provide: 'IAvatarService',
@@ -15,7 +20,11 @@ import { UserRepository } from '../users/infra/repositories/user.repository';
     },
     {
       provide: 'IAvatarRepository',
-      useClass: UserRepository,
+      useClass: AvatarRepository,
+    },
+    {
+      provide: 'IUserApi',
+      useClass: UserApi,
     },
     ImageService,
   ],

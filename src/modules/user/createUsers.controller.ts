@@ -1,17 +1,20 @@
-import { Controller, Post, Body, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, UseFilters, Inject } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
-import { UserService } from './user.service';
 import { MissingParamsFilter } from '../../utils/errors/missing.params.error';
 import { UserAlreadyExistsFilter } from '../../utils/errors/user.already.exist';
+import { UserEntity } from './entities/user.entity';
+import { IUserService } from './interfaces/user.service.interface';
 
 @Controller('api/users')
 export class CreateUsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    @Inject('IUserService') private readonly userService: IUserService,
+  ) {}
 
   @Post()
   @UseFilters(new MissingParamsFilter())
   @UseFilters(new UserAlreadyExistsFilter())
-  async createUser(@Body() user: any): Promise<UserDto> {
-    return this.userService.createUser(user);
+  async createUser(@Body() createUserDto: UserDto): Promise<UserEntity> {
+    return this.userService.createUser(createUserDto);
   }
 }

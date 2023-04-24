@@ -1,8 +1,7 @@
-import { User } from '../../dto/user.entity';
+import { UserDto } from '../../user/dto/user.dto';
 
-export const userStub = (): User => {
+export const userStub = (): UserDto => {
   return {
-    id: 123,
     email: 'test@example.com',
     first_name: 'Allysson',
     last_name: 'Freitas',

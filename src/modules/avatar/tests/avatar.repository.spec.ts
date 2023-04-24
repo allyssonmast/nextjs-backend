@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Avatar } from '../schemas/avatar.schema';
-import { IUserApi } from 'src/utils/interfaces/user-api.interface';
+import { IUserApi } from 'src/modules/database/api/user-api.interface';
 import { AvatarRepository } from '../repository/avatar.repository';
 import { AvatarModel } from './support/avatar.model';
 import { avatarStub } from './stubs/avatar.stub';
@@ -54,16 +54,16 @@ describe('AvatarRepository', () => {
   describe('saveImage', () => {
     it('should call imageModel.save with the given image', async () => {
       const image = new Avatar();
-      const spy = jest.spyOn(AvatarModel.prototype, 'save');
+      const spy = jest.spyOn(AvatarModel.prototype, 'create');
 
       await avatarRepository.saveImage(image);
 
-      expect(spy).toHaveBeenCalledWith();
+      expect(spy).toHaveBeenCalled();
     });
     it('should throw an error if imageModel.save throws an error', async () => {
       const image = new Avatar();
       const saveSpy = jest
-        .spyOn(AvatarModel.prototype, 'save')
+        .spyOn(AvatarModel.prototype, 'create')
         .mockImplementation(() => {
           throw new Error('Some error occurred');
         });

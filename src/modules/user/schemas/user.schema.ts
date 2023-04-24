@@ -19,12 +19,6 @@ export class User {
 
   @Prop()
   avatar: string;
-
-  @Prop()
-  avatarFilename: string;
-
-  @Prop()
-  avatarBase64: string;
 }
 
-export const UserSchemaFactory = () => SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User);

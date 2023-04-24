@@ -6,6 +6,4 @@ export const userStub = (): User => ({
   first_name: 'John',
   last_name: 'Doe',
   avatar: 'http://example.com/avatar.jpg',
-  avatarFilename: '',
-  avatarBase64: '',
 });

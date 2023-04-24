@@ -1,15 +1,17 @@
-import { Controller, Get, Param, UseFilters } from '@nestjs/common';
-import { UserDto } from './dto/user.dto';
-import { UserService } from './user.service';
+import { Controller, Get, Param, UseFilters, Inject } from '@nestjs/common';
 import { UserNotFoundExceptionFilter } from '../../utils/errors/notfound.exception';
+import { UserEntity } from './entities/user.entity';
+import { IUserService } from './interfaces/user.service.interface';
 
 @Controller('api/user')
 export class GetUserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    @Inject('IUserService') private readonly userService: IUserService,
+  ) {}
 
   @Get(':userId')
   @UseFilters(new UserNotFoundExceptionFilter())
-  async getUserById(@Param('userId') userId: number): Promise<UserDto> {
+  async getUserById(@Param('userId') userId: number): Promise<UserEntity> {
     return this.userService.getUserById(userId);
   }
 }

@@ -7,7 +7,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { UserNotFoundExceptionFilter } from '../../utils/errors/notfound.exception';
-import { IAvatarService } from '../../utils/interfaces/avatar.service.interface';
+import { IAvatarService } from './interfaces/avatar.service.interface';
 
 @Controller('api/user/:userId/avatar')
 export class AvatarController {

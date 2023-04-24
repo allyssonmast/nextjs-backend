@@ -18,7 +18,6 @@ describe('UserController', () => {
     it('should call userService.getUserById with correct userId', async () => {
       const userId = 1;
       const user: UserDto = {
-        id: 1,
         first_name: 'Test User',
         last_name: 'Last Name',
         email: 'test@example.com',

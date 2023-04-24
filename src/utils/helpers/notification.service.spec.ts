@@ -9,7 +9,7 @@ describe('NotificationService', () => {
   beforeEach(async () => {
     //amqp://127.0.0.1:5672
     rabbitConfig = {
-      url: 'amqp://localhost:5672',
+      url: 'amqp://127.0.0.1:5672',
       login: 'guest',
       password: 'guest',
       queueName: 'teste',

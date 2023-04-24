@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import * as request from 'supertest';
-import { AppModule } from '../../../app.module';
-import { DatabaseService } from '../../../modules/database/database.service';
+import { AppModule } from '../../app.module';
+import { DatabaseService } from '../database/mongoDB/database.service';
 
 describe('UsersController', () => {
   let dbConnection: Connection;
@@ -65,7 +65,6 @@ describe('UsersController', () => {
         avatar: 'https://reqres.in/img/faces/3-image.jpg',
       };
       const response = await request(httpServer).post('/api/users').send(user);
-
       expect(response.status).toBe(201);
     });
   });

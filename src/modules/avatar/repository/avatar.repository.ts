@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Injectable, Inject } from '@nestjs/common';
 import { Avatar } from '../schemas/avatar.schema';
-import { IUserApi } from 'src/utils/interfaces/user-api.interface';
+import { IUserApi } from 'src/modules/database/api/user-api.interface';
 import { IAvatarRepository } from '../interfaces/avatar.repository.interface';
 
 @Injectable()
@@ -18,10 +18,8 @@ export class AvatarRepository implements IAvatarRepository {
 
   async saveImage(image: Avatar): Promise<Avatar> {
     try {
-      const savedImage = new this.imageModel(image);
-      return await savedImage.save();
+      return await this.imageModel.create(image);
     } catch (err) {
-      console.log(err);
       throw new Error(`Failed to save image: Failed to save image`);
     }
   }
