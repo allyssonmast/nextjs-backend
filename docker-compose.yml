@@ -1,20 +1,34 @@
 version: '3'
 services:
   rabbitmq:
-    image: rabbitmq:3.9.5-alpine
+    image: rabbitmq:3-management
     ports:
-      - '5672:5672'
-      - '15672:15672'
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-
-  nestjs:
-    build: .
-    ports:
-      - '3000:3000'
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+  nodemailer:
+    build:
+      context: .
+      dockerfile: Dockerfile.nodemailer
+    environment:
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+    depends_on:
+      - mailhog
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_QUEUE_NAME=my_queue
+      - MAIL_SERVICE=nodemailer
     depends_on:
       - rabbitmq
-    environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
-      RABBITMQ_QUEUE_NAME: email_notifications
+      - nodemailer
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"

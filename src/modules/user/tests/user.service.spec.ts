@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { NotificationService } from '../../../utils/helpers/notification.service';
+import { NotificationService } from '../../rabbitmq/rabbit/notification.service';
 import { UserService } from '../user.service';
 import { UserDto } from '../dto/user.dto';
 import { IUserRepository } from '../interfaces/user.repository.interface';

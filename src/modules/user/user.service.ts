@@ -5,16 +5,18 @@ import {
   Inject,
 } from '@nestjs/common';
 import { IUserRepository } from './interfaces/user.repository.interface';
-import { NotificationService } from '../../utils/helpers/notification.service';
+import { NotificationService } from '../rabbitmq/rabbit/notification.service';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserAlreadyExistsException } from '../../utils/errors/user.exception.error';
+import { IRabbitMQService } from './interfaces/rabbitmq.service.interface';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
-    private readonly notificationService: NotificationService,
+    @Inject('IRabbitMQService')
+    private readonly rabbitMQService: IRabbitMQService,
   ) {}
 
   async getUserById(userId: number): Promise<UserEntity> {
@@ -36,7 +38,7 @@ export class UserService {
       const createdUser = await this.userRepository.createUser(user);
       const message = `Your account has been created successfully`;
 
-      await this.notificationService.sendEmailNotification(
+      await this.rabbitMQService.sendEmailNotification(
         createdUser.email,
         message,
       );

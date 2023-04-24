@@ -5,6 +5,8 @@ import { DatabaseModule } from './modules/database/mongoDB/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { AvatarModule } from './modules/avatar/avatar.module';
 import { APP_PIPE } from '@nestjs/core';
+import { RabbitmqModule } from './modules/rabbitmq/rabbitmq.module';
+import { EmailModule } from './modules/email/email.module';
 dotenv.config();
 @Module({
   imports: [
@@ -14,6 +16,8 @@ dotenv.config();
     UserModule,
     AvatarModule,
     DatabaseModule,
+    RabbitmqModule,
+    EmailModule,
   ],
   providers: [
     {
