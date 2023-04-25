@@ -1,4 +1,4 @@
-import { UserDto } from '../../user/dto/user.dto';
+import { UserDto } from '../../src/modules/user/dto/user.dto';
 
 export const userStub = (): UserDto => {
   return {

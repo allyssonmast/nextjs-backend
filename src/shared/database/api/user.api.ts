@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
-import { IUserApi } from 'src/modules/database/api/user-api.interface';
+import { IUserApi } from 'src/shared/database/api/user-api.interface';
 
 export class UserApi implements IUserApi {
   readonly baseUrl = 'https://reqres.in/api';

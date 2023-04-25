@@ -1,15 +1,17 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { NotificationService } from '../../rabbitmq/rabbit/notification.service';
+import { RabbitMQService } from '../../../shared/rabbitmq/rabbitMQ.service';
 import { UserService } from '../user.service';
 import { UserDto } from '../dto/user.dto';
 import { IUserRepository } from '../interfaces/user.repository.interface';
 import { userStub } from './stubs/user.stub';
-import { UserAlreadyExistsException } from '../../../utils/errors/user.exception.error';
+import { UserAlreadyExistsException } from '../../../shared/exceptions/user.exception.error';
+import { IEmailService } from '../interfaces/email.service.interface';
 
 describe('UserService', () => {
   let service: UserService;
   let userRepository: IUserRepository;
-  let notificationService: NotificationService;
+  let notificationService: RabbitMQService;
+  let emailService: IEmailService;
   const userRepositoryMock: IUserRepository = {
     findById: jest.fn().mockResolvedValue(null),
     findByEmail: jest.fn().mockResolvedValue(null),
@@ -20,7 +22,14 @@ describe('UserService', () => {
     notificationService = {
       sendEmailNotification: jest.fn(),
     } as any;
-    service = new UserService(userRepository, notificationService);
+    emailService = {
+      sendEmail: jest.fn(),
+    } as any;
+    service = new UserService(
+      userRepository,
+      emailService,
+      notificationService,
+    );
   });
 
   describe('getUserById', () => {
@@ -53,6 +62,7 @@ describe('UserService', () => {
         email: 'john.doe@example.com',
         first_name: 'John',
         last_name: 'Doe',
+        password: '123456',
         avatar: 'http://example.com/avatar.jpg',
       };
     });

@@ -5,16 +5,19 @@ import {
   Inject,
 } from '@nestjs/common';
 import { IUserRepository } from './interfaces/user.repository.interface';
-import { NotificationService } from '../rabbitmq/rabbit/notification.service';
+import { RabbitMQService } from '../../shared/rabbitmq/rabbitMQ.service';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
-import { UserAlreadyExistsException } from '../../utils/errors/user.exception.error';
+import { UserAlreadyExistsException } from '../../shared/exceptions/user.exception.error';
 import { IRabbitMQService } from './interfaces/rabbitmq.service.interface';
+import { IEmailService } from './interfaces/email.service.interface';
+import { EmailDto } from './dto/email.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('IEmailService') private readonly emailService: IEmailService,
     @Inject('IRabbitMQService')
     private readonly rabbitMQService: IRabbitMQService,
   ) {}
@@ -35,13 +38,24 @@ export class UserService {
     }
 
     try {
-      const createdUser = await this.userRepository.createUser(user);
+      const createdUser: UserEntity = await this.userRepository.createUser(
+        user,
+      );
       const message = `Your account has been created successfully`;
 
       await this.rabbitMQService.sendEmailNotification(
         createdUser.email,
         message,
       );
+
+      const emailDto: EmailDto = {
+        to: createdUser.email,
+        subject: 'Confirmation email',
+        text: message,
+      };
+
+      await this.emailService.sendEmail(emailDto);
+
       return createdUser;
     } catch (e) {
       throw new BadRequestException('Failed to create user');

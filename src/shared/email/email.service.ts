@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { IEmailService } from './interfaces/message.service.interface';
+import { IEmailService } from './interfaces/email.service.interface';
 import { ConfigService } from '@nestjs/config';
 import { EmailDto } from './dto/email.dto';
 import { EmailSendingException } from './exceptions/emailSend.exception';
 
 @Injectable()
-export class MessageService implements IEmailService {
+export class EmailService implements IEmailService {
   private readonly transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService) {
@@ -30,6 +30,7 @@ export class MessageService implements IEmailService {
     };
     try {
       await this.transporter.sendMail(message);
+      console.log('to:', to, 'message:', text);
     } catch (error) {
       throw new EmailSendingException(error.message);
     }

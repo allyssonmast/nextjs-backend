@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Avatar } from '../schemas/avatar.schema';
-import { IUserApi } from 'src/modules/database/api/user-api.interface';
+import { IUserApi } from 'src/shared/database/api/user-api.interface';
 import { AvatarRepository } from '../repository/avatar.repository';
 import { AvatarModel } from './support/avatar.model';
 import { avatarStub } from './stubs/avatar.stub';

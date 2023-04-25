@@ -3,8 +3,8 @@ import { AvatarController } from './avatar.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AvatarService } from './avatar.service';
 
-import { ImageService } from '../../utils/helpers/image.service';
-import { UserApi } from '../database/api/user.api';
+import { ImageService } from '../../shared/image-encoder/image.service';
+import { UserApi } from '../../shared/database/api/user.api';
 import { AvatarSchema } from './schemas/avatar.schema';
 import { AvatarRepository } from './repository/avatar.repository';
 

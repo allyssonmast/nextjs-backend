@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EmailSendingException } from './exceptions/emailSend.exception';
-import { MessageService } from './message.service';
+import { EmailService } from './email.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
   providers: [
     {
       provide: 'IEmailService',
-      useClass: MessageService,
+      useClass: EmailService,
     },
     EmailSendingException,
   ],

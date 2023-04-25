@@ -1,30 +1,30 @@
 import { AvatarService } from '../avatar.service';
-import { AvatarRepository } from '../repository/avatar.repository';
 
 import { Avatar } from '../schemas/avatar.schema';
 import { NotFoundException } from '@nestjs/common';
-import { ImageService } from '../../../utils/helpers/image.service';
+import { ImageService } from '../../../shared/image-encoder/image.service';
+import { IAvatarRepository } from '../interfaces/avatar.repository.interface';
+import { IAvatarService } from '../interfaces/avatar.service.interface';
 
 const mockUserRepository = {
   getUserById: jest.fn().mockResolvedValue(null),
-  createUser: jest.fn().mockResolvedValue(null),
-  saveAvatar: jest.fn().mockResolvedValue(null),
-  getAvatar: jest.fn().mockResolvedValue(null),
   saveImage: jest.fn().mockResolvedValue(null),
-  deleteAvatar: jest.fn().mockResolvedValue(null),
   findImageById: jest.fn().mockResolvedValue(null),
   removeEntryFromDB: jest.fn().mockResolvedValue(null),
 };
+const mockImageService = {
+  downloadImage: jest.fn().mockResolvedValue('mocked-base64-image'),
+};
 
 describe('AvatarService', () => {
-  let avatarService: AvatarService;
-  let avatarRepository: AvatarRepository;
+  let avatarService: IAvatarService;
+  let avatarRepository: IAvatarRepository;
   let imageService: ImageService;
 
   beforeEach(() => {
     // Create an instance of AvatarService and inject mock classes
     avatarRepository = mockUserRepository as any;
-    imageService = new ImageService();
+    imageService = mockImageService as any;
     avatarService = new AvatarService(avatarRepository, imageService);
   });
 
@@ -35,33 +35,42 @@ describe('AvatarService', () => {
 
   describe('getUserAvatar', () => {
     it('should return the user avatar as a string when given a valid user ID', async () => {
+      const userId = 1;
+      const stringBase64 = 'mocked-base64-image';
+
       // Arrange
       const user = {
-        id: 1,
-        name: 'John Doe',
+        id: userId,
+        first_name: 'Johe',
+        last_name: 'Doe',
         email: 'johndoe@example.com',
+        avatar: 'https://example.com/avatar.png',
       };
       const avatarBase64 = Buffer.from(
         'iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAgAElEQVR4Xu3dQY7aMAxFUa9f3',
         'binary',
       );
 
+      const mockResponse = {
+        imageId: userId.toString(),
+        imageData: avatarBase64,
+      };
+
       jest.spyOn(avatarRepository, 'getUserById').mockResolvedValue(user);
-      jest
-        .spyOn(imageService, 'downloadImage')
-        .mockResolvedValue(avatarBase64.toString());
-      jest
-        .spyOn(avatarRepository, 'saveImage')
-        .mockResolvedValue({ imageId: '1', imageData: avatarBase64 });
+      jest.spyOn(imageService, 'downloadImage').mockResolvedValue(stringBase64);
+      jest.spyOn(avatarRepository, 'saveImage').mockResolvedValue({
+        imageId: userId.toString(),
+        imageData: avatarBase64,
+      });
       jest
         .spyOn(avatarRepository, 'findImageById')
-        .mockResolvedValue({ imageId: '1', imageData: avatarBase64 });
+        .mockResolvedValue(mockResponse);
 
       // Act
-      const result = await avatarService.getUserAvatar(1);
+      const result = await avatarService.getUserAvatar(userId);
 
       // Assert
-      expect(result).toEqual(avatarBase64.toString());
+      expect(result).toEqual(mockResponse.imageData.toString('base64'));
     });
 
     it('should throw a NotFoundException when given an invalid user ID', async () => {

@@ -1,5 +1,5 @@
 import { Controller, Get, Param, UseFilters, Inject } from '@nestjs/common';
-import { UserNotFoundExceptionFilter } from '../../utils/errors/notfound.exception';
+import { UserNotFoundExceptionFilter } from '../../shared/exceptions/notfound.exception';
 import { UserEntity } from './entities/user.entity';
 import { IUserService } from './interfaces/user.service.interface';
 

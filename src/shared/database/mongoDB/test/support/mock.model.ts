@@ -14,6 +14,13 @@ export abstract class MockModel<T> {
       },
     };
   }
+
+  toJSON() {
+    const obj = this.entityStub as any;
+    delete obj.password;
+    return obj;
+  }
+
   async create(data: any): Promise<T> {
     return this.entityStub;
   }

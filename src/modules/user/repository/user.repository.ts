@@ -7,10 +7,10 @@ import {
   Inject,
 } from '@nestjs/common';
 import { User, UserDocument } from '../schemas/user.schema';
-import { IUserApi } from 'src/modules/database/api/user-api.interface';
 import { IUserRepository } from '../interfaces/user.repository.interface';
 import { UserDto } from '../dto/user.dto';
 import { UserEntity } from '../entities/user.entity';
+import { IUserApi } from 'src/shared/database/api/user-api.interface';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -19,9 +19,11 @@ export class UserRepository implements IUserRepository {
     @Inject('IUserApi') private readonly userApi: IUserApi,
   ) {}
 
-  async createUser(user: UserDto): Promise<UserEntity> {
+  async createUser(user: UserDto): Promise<any> {
     try {
-      return await this.userModel.create(user);
+      const userEntity = await this.userModel.create(user);
+
+      return userEntity;
     } catch (error) {
       throw new BadRequestException('Failed to create user');
     }

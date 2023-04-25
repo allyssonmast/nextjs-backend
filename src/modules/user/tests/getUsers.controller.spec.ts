@@ -20,6 +20,7 @@ describe('UserController', () => {
       const user: UserDto = {
         first_name: 'Test User',
         last_name: 'Last Name',
+        password: '123456',
         email: 'test@example.com',
         avatar: 'https://reqres.in/img/faces/1-image.jpg',
       };

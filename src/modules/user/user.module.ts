@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { GetUserController } from './getUsers.controller';
 import { UserService } from './user.service';
 import { UserRepository } from './repository/user.repository';
-import { NotificationService } from '../rabbitmq/rabbit/notification.service';
-import { RabbitMQConfig } from '../rabbitmq/rabbit/rabbit.config';
-import { UserAlreadyExistsFilter } from '../../utils/errors/user.already.exist';
-import { EmailValidator } from '../../utils/helpers/email.validator';
+import { RabbitMQService } from '../../shared/rabbitmq/rabbitMQ.service';
+import { RabbitMQConfig } from '../../shared/rabbitmq/config/rabbit.config';
+import { UserAlreadyExistsFilter } from '../../shared/exceptions/user.already.exist';
 import { CreateUsersController } from './createUsers.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { UserApi } from '../database/api/user.api';
+import { UserApi } from '../../shared/database/api/user.api';
 import { UserSchema } from './schemas/user.schema';
+import { EmailService } from '../../shared/email/email.service';
 
 @Module({
   controllers: [GetUserController, CreateUsersController],
@@ -28,9 +28,15 @@ import { UserSchema } from './schemas/user.schema';
       provide: 'IUserApi',
       useClass: UserApi,
     },
-    NotificationService,
+    {
+      provide: 'IRabbitMQService',
+      useClass: RabbitMQService,
+    },
+    {
+      provide: 'IEmailService',
+      useClass: EmailService,
+    },
     RabbitMQConfig,
-    EmailValidator,
     UserAlreadyExistsFilter,
   ],
   exports: ['IUserApi'],

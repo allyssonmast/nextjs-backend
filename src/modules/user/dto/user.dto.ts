@@ -18,4 +18,9 @@ export class UserDto {
   @IsNotEmpty()
   @MinLength(3)
   last_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
 }

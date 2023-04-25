@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MessageService } from '../message.service';
+import { EmailService } from '../email.service';
 import { EmailSendingException } from '../exceptions/emailSend.exception';
 import { EmailDto } from '../dto/email.dto';
 import { ConfigModule } from '@nestjs/config'; // Importe o ConfigModule aqui
 
 describe('MessageService', () => {
-  let messageService: MessageService;
+  let messageService: EmailService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -15,7 +15,7 @@ describe('MessageService', () => {
         }),
       ],
       providers: [
-        MessageService,
+        EmailService,
         {
           provide: 'SMTP_CONFIG',
           useValue: {
@@ -30,7 +30,7 @@ describe('MessageService', () => {
       ],
     }).compile();
 
-    messageService = module.get<MessageService>(MessageService);
+    messageService = module.get<EmailService>(EmailService);
   });
 
   describe('sendEmail', () => {

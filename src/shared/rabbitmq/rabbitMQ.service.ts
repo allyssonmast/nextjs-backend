@@ -1,9 +1,9 @@
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { connect, Connection, Channel } from 'amqplib';
-import { RabbitMQConfig } from './rabbit.config';
+import { RabbitMQConfig } from './config/rabbit.config';
 
 @Injectable()
-export class NotificationService implements OnApplicationShutdown {
+export class RabbitMQService implements OnApplicationShutdown {
   private connection: Connection;
   private channel: Channel;
 
@@ -42,6 +42,12 @@ export class NotificationService implements OnApplicationShutdown {
     this.channel.sendToQueue(this.rabbitMQConfig.queueName, Buffer.from(msg), {
       persistent: true,
     });
+    console.log(
+      'queueName:',
+      this.rabbitMQConfig.queueName,
+      'message:',
+      message,
+    );
   }
 
   async onApplicationShutdown(signal?: string): Promise<void> {

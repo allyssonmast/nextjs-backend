@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { ImageService } from '../../utils/helpers/image.service';
+import { ImageService } from '../../shared/image-encoder/image.service';
 import { IAvatarService } from './interfaces/avatar.service.interface';
 import { IAvatarRepository } from './interfaces/avatar.repository.interface';
 
@@ -30,7 +30,7 @@ export class AvatarService implements IAvatarService {
         newImage.imageId,
       );
 
-      return avatarBase64;
+      return savedImage.imageData.toString('base64');
     } catch (e) {
       throw new Error('Error downloading image');
     }

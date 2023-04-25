@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Injectable, Inject } from '@nestjs/common';
 import { Avatar } from '../schemas/avatar.schema';
-import { IUserApi } from 'src/modules/database/api/user-api.interface';
+import { IUserApi } from 'src/shared/database/api/user-api.interface';
 import { IAvatarRepository } from '../interfaces/avatar.repository.interface';
 
 @Injectable()

@@ -20,6 +20,7 @@ describe('getUsersController', () => {
         first_name: 'Test User',
         last_name: 'Last Name',
         email: 'test@example.com',
+        password: '123456',
         avatar: 'https://reqres.in/img/faces/1-image.jpg',
       };
 

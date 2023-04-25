@@ -39,32 +39,45 @@ describe('UserRepository', () => {
       const userDto: UserDto = {
         email: 'test@test.com',
         first_name: 'John',
+        password: '123456',
         last_name: 'Doe',
         avatar: 'avatar.jpg',
       };
       const createdUser: UserEntity = {
-        id: 1,
+        id: 123,
         email: 'test@test.com',
         first_name: 'John',
         last_name: 'Doe',
         avatar: 'avatar.jpg',
       };
-      jest.spyOn(userModel, 'create').mockResolvedValueOnce(createdUser);
+      const mongooseResponse = {
+        id: 123,
+        email: 'test@test.com',
+        first_name: 'John',
+        password: '123456',
+        last_name: 'Doe',
+        avatar: 'avatar.jpg',
+      };
+      jest
+        .spyOn(UserModel.prototype, 'create')
+        .mockResolvedValueOnce(mongooseResponse);
       const result = await userRepository.createUser(userDto);
-      expect(userModel.create).toHaveBeenCalledWith(userDto);
-      expect(result).toEqual(createdUser);
+      expect(UserModel.prototype.create).toHaveBeenCalledWith(userDto);
+      const { password, ...userEntity } = result; // is mocking .toJSON() from user.schema.ts
+      expect(userEntity).toEqual(createdUser);
     });
 
     it('should throw BadRequestException when fails to create user', async () => {
       const userDto: UserDto = {
         email: 'test@test.com',
         first_name: 'John',
+        password: '123456',
         last_name: 'Doe',
         avatar: 'avatar.jpg',
       };
       const error = new Error('Failed to create user');
 
-      jest.spyOn(userModel, 'create').mockRejectedValueOnce(error);
+      jest.spyOn(UserModel.prototype, 'create').mockRejectedValueOnce(error);
       await expect(userRepository.createUser(userDto)).rejects.toThrow(
         BadRequestException,
       );

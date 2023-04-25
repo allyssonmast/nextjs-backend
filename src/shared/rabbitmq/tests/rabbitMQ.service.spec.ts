@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationService } from './notification.service';
-import { RabbitMQConfig } from './rabbit.config';
+import { RabbitMQService } from '../rabbitMQ.service';
+import { RabbitMQConfig } from '../config/rabbit.config';
 
 describe('NotificationService', () => {
-  let service: NotificationService;
+  let service: RabbitMQService;
   let rabbitConfig: RabbitMQConfig;
 
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('NotificationService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        NotificationService,
+        RabbitMQService,
         {
           provide: RabbitMQConfig,
           useValue: rabbitConfig,
@@ -26,7 +26,7 @@ describe('NotificationService', () => {
       ],
     }).compile();
 
-    service = module.get<NotificationService>(NotificationService);
+    service = module.get<RabbitMQService>(RabbitMQService);
   });
 
   afterEach(async () => {

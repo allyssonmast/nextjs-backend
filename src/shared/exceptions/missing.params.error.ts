@@ -14,7 +14,7 @@ export class MissingParamsFilter implements ExceptionFilter {
 
     response.status(400).json({
       statusCode: 400,
-      message: 'Bad request - missing parameters',
+      message: 'Bad request - missing parametes',
     });
   }
 }

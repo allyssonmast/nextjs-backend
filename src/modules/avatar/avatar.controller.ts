@@ -6,7 +6,7 @@ import {
   UseFilters,
   Inject,
 } from '@nestjs/common';
-import { UserNotFoundExceptionFilter } from '../../utils/errors/notfound.exception';
+import { UserNotFoundExceptionFilter } from '../../shared/exceptions/notfound.exception';
 import { IAvatarService } from './interfaces/avatar.service.interface';
 
 @Controller('api/user/:userId/avatar')

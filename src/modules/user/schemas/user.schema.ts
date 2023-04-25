@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 export type UserDocument = User & Document;
 
@@ -12,6 +13,9 @@ export class User {
   email: string;
 
   @Prop()
+  password: string;
+
+  @Prop()
   first_name: string;
 
   @Prop()
@@ -22,3 +26,18 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+// Middleware
+UserSchema.pre('save', async function (next) {
+  if (this.isModified('password') || this.isNew) {
+    const hash = await bcrypt.hash(this.password, 10);
+    this.password = hash;
+  }
+  next();
+});
+
+UserSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj.__v;
+  return obj;
+};

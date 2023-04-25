@@ -1,4 +1,4 @@
-import { MockModel } from '../../../database/mongoDB/test/support/mock.model';
+import { MockModel } from '../../../../shared/database/mongoDB/test/support/mock.model';
 import { User } from '../../schemas/user.schema';
 import { userStub } from '../stubs/user.stub';
 
