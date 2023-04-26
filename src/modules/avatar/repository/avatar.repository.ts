@@ -9,7 +9,7 @@ import { IAvatarRepository } from '../interfaces/avatar.repository.interface';
 export class AvatarRepository implements IAvatarRepository {
   constructor(
     @InjectModel(Avatar.name) private readonly imageModel: Model<Avatar>,
-    @Inject('IUserApi') private readonly userApi: IUserApi,
+    @Inject('IUserApi') private readonly userApi: IUserApi
   ) {}
 
   async getUserById(userId: number): Promise<any> {

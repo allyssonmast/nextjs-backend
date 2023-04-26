@@ -28,7 +28,7 @@ describe('UserService', () => {
     service = new UserService(
       userRepository,
       emailService,
-      notificationService,
+      notificationService
     );
   });
 
@@ -49,7 +49,7 @@ describe('UserService', () => {
         .mockRejectedValueOnce(new NotFoundException());
 
       await expect(service.getUserById(1)).rejects.toThrowError(
-        NotFoundException,
+        NotFoundException
       );
     });
   });
@@ -83,7 +83,7 @@ describe('UserService', () => {
       jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(userStub());
 
       await expect(service.createUser(userDto)).rejects.toThrowError(
-        UserAlreadyExistsException,
+        UserAlreadyExistsException
       );
     });
 
@@ -92,7 +92,7 @@ describe('UserService', () => {
       jest.spyOn(userRepository, 'createUser').mockRejectedValue(new Error());
 
       await expect(service.createUser(userDto)).rejects.toThrowError(
-        BadRequestException,
+        BadRequestException
       );
     });
   });

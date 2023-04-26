@@ -13,7 +13,7 @@ import { IAvatarService } from './interfaces/avatar.service.interface';
 export class AvatarController {
   constructor(
     @Inject('IAvatarService')
-    private readonly getAvatarrService: IAvatarService,
+    private readonly getAvatarrService: IAvatarService
   ) {}
 
   @Get()

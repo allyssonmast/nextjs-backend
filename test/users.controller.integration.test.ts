@@ -93,7 +93,7 @@ describe('UsersController', () => {
     });
     it('should return 404 if user not found', async () => {
       const response = await request(httpServer).delete(
-        '/api/user/1000/avatar',
+        '/api/user/1000/avatar'
       );
       expect(response.status).toBe(404);
     });

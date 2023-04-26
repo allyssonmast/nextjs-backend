@@ -11,7 +11,6 @@ import { UserAlreadyExistsException } from '../../shared/exceptions/user.excepti
 import { IRabbitMQService } from './interfaces/rabbitmq.service.interface';
 import { IEmailService } from './interfaces/email.service.interface';
 import { EmailDto } from './dto/email.dto';
-import { UserRepository } from './repository/user.repository';
 
 @Injectable()
 export class UserService {
@@ -19,7 +18,7 @@ export class UserService {
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     @Inject('IEmailService') private readonly emailService: IEmailService,
     @Inject('IRabbitMQService')
-    private readonly rabbitMQService: IRabbitMQService,
+    private readonly rabbitMQService: IRabbitMQService
   ) {}
 
   async getUserById(userId: number): Promise<UserEntity> {
@@ -39,7 +38,7 @@ export class UserService {
 
     try {
       const createdUser: UserEntity = await this.userRepository.createUser(
-        user,
+        user
       );
       const message = `Your account has been created successfully`;
 

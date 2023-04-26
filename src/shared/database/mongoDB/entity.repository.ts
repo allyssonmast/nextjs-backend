@@ -5,7 +5,7 @@ export abstract class EntityRepository<T extends Document> {
 
   async findOne(
     entityFilterQuery: FilterQuery<T>,
-    projection?: Record<string, unknown>,
+    projection?: Record<string, unknown>
   ): Promise<T | null> {
     return this.entityModel
       .findOne(entityFilterQuery, {
@@ -27,14 +27,14 @@ export abstract class EntityRepository<T extends Document> {
 
   async findOneAndUpdate(
     entityFilterQuery: FilterQuery<T>,
-    updateEntityData: UpdateQuery<unknown>,
+    updateEntityData: UpdateQuery<unknown>
   ): Promise<T | null> {
     return this.entityModel.findOneAndUpdate(
       entityFilterQuery,
       updateEntityData,
       {
         new: true,
-      },
+      }
     );
   }
 

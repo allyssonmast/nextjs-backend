@@ -14,7 +14,7 @@ export class RabbitMQService implements OnApplicationShutdown {
       const { url, login, password } = this.rabbitMQConfig;
       const connectionUrl = url.replace(
         'amqp://',
-        `amqp://${login}:${password}@`,
+        `amqp://${login}:${password}@`
       );
       this.connection = await connect(connectionUrl);
       this.connection.on('error', (err) => {
@@ -46,7 +46,7 @@ export class RabbitMQService implements OnApplicationShutdown {
       'queueName:',
       this.rabbitMQConfig.queueName,
       'message:',
-      message,
+      message
     );
   }
 

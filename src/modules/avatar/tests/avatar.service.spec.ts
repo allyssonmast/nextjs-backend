@@ -48,7 +48,7 @@ describe('AvatarService', () => {
       };
       const avatarBase64 = Buffer.from(
         'iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAgAElEQVR4Xu3dQY7aMAxFUa9f3',
-        'binary',
+        'binary'
       );
 
       const mockResponse = {
@@ -85,7 +85,7 @@ describe('AvatarService', () => {
 
       // Act and assert
       await expect(avatarService.getUserAvatar(1)).rejects.toThrow(
-        NotFoundException,
+        NotFoundException
       );
     });
 
@@ -133,7 +133,7 @@ describe('AvatarService', () => {
       expect(avatarRepository.getUserById).toHaveBeenCalledWith(userId);
       expect(avatarRepository.findImageById).toHaveBeenCalledWith(user.id);
       expect(avatarRepository.removeEntryFromDB).toHaveBeenCalledWith(
-        image.imageId,
+        image.imageId
       );
     });
 
@@ -144,7 +144,7 @@ describe('AvatarService', () => {
       jest.spyOn(avatarRepository, 'getUserById').mockResolvedValue(null);
 
       await expect(avatarService.deleteAvatar(userId)).rejects.toThrow(
-        'Not Found',
+        'Not Found'
       );
 
       // Verify UserRepository method call

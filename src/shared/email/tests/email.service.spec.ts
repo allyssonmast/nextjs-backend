@@ -58,7 +58,7 @@ describe('MessageService', () => {
         });
 
       await expect(messageService.sendEmail(emailDto)).rejects.toThrow(
-        EmailSendingException,
+        EmailSendingException
       );
     });
   });

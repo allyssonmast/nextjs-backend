@@ -41,7 +41,7 @@ describe('ImageService', () => {
   it('should throw an exception if user object does not have an avatar property', async () => {
     const userWithoutAvatar = { name: 'John Doe' };
     await expect(
-      imageService.downloadImage(userWithoutAvatar),
+      imageService.downloadImage(userWithoutAvatar)
     ).rejects.toThrow();
   });
 });

@@ -6,7 +6,7 @@ import { IUserService } from './interfaces/user.service.interface';
 @Controller('api/users')
 export class CreateUsersController {
   constructor(
-    @Inject('IUserService') private readonly userService: IUserService,
+    @Inject('IUserService') private readonly userService: IUserService
   ) {}
 
   @Post()

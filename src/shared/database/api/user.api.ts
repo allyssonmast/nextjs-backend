@@ -7,7 +7,7 @@ export class UserApi implements IUserApi {
   async findById(userId: number): Promise<any> {
     try {
       const response: AxiosResponse = await axios.get(
-        `${this.baseUrl}/users/${userId}`,
+        `${this.baseUrl}/users/${userId}`
       );
       return response.data.data;
     } catch (e) {

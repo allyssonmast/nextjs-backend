@@ -6,7 +6,7 @@ import { IUserService } from './interfaces/user.service.interface';
 @Controller('api/user')
 export class GetUserController {
   constructor(
-    @Inject('IUserService') private readonly userService: IUserService,
+    @Inject('IUserService') private readonly userService: IUserService
   ) {}
 
   @Get(':userId')

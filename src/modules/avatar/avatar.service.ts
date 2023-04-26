@@ -9,7 +9,7 @@ export class AvatarService implements IAvatarService {
   constructor(
     @Inject('IAvatarRepository')
     private readonly avatarRepository: IAvatarRepository,
-    private readonly imageService: ImageService,
+    private readonly imageService: ImageService
   ) {}
 
   async getUserAvatar(userId: number): Promise<any> {
@@ -35,7 +35,7 @@ export class AvatarService implements IAvatarService {
       const newImage = await this.avatarRepository.saveImage(image);
 
       const savedImage = await this.avatarRepository.findImageById(
-        newImage.imageId,
+        newImage.imageId
       );
 
       return savedImage.imageData.toString('base64');

@@ -80,7 +80,7 @@ describe('UserRepository', () => {
 
       jest.spyOn(UserModel.prototype, 'create').mockRejectedValueOnce(error);
       await expect(userRepository.createUser(userDto)).rejects.toThrow(
-        BadRequestException,
+        BadRequestException
       );
     });
   });
@@ -112,7 +112,7 @@ describe('UserRepository', () => {
         exec: jest.fn().mockRejectedValue(new BadRequestException()),
       });
       await expect(userRepository.findByEmail(email)).rejects.toThrow(
-        BadRequestException,
+        BadRequestException
       );
     });
   });

@@ -16,7 +16,7 @@ import { IUserApi } from 'src/shared/database/api/user-api.interface';
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @Inject('IUserApi') private readonly userApi: IUserApi,
+    @Inject('IUserApi') private readonly userApi: IUserApi
   ) {}
 
   async createUser(user: UserDto): Promise<any> {

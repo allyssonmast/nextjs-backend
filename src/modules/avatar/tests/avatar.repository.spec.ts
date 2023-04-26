@@ -69,7 +69,7 @@ describe('AvatarRepository', () => {
         });
 
       await expect(avatarRepository.saveImage(image)).rejects.toThrowError(
-        /Failed to save image/,
+        /Failed to save image/
       );
       expect(saveSpy).toHaveBeenCalledWith(image);
     });
@@ -94,7 +94,7 @@ describe('AvatarRepository', () => {
         });
 
       await expect(
-        avatarRepository.findImageById(imageId),
+        avatarRepository.findImageById(imageId)
       ).rejects.toThrowError(/Failed to find image by id/);
       expect(findOneSpy).toHaveBeenCalledWith({ imageId });
     });
@@ -104,9 +104,9 @@ describe('AvatarRepository', () => {
       const findOneSpy = jest.spyOn(userModel, 'findOne').mockReturnValue(null);
 
       await expect(
-        avatarRepository.findImageById(imageId),
+        avatarRepository.findImageById(imageId)
       ).rejects.toThrowError(
-        "Failed to find image by id: Cannot read properties of null (reading 'exec')",
+        "Failed to find image by id: Cannot read properties of null (reading 'exec')"
       );
       expect(findOneSpy).toHaveBeenCalledWith({ imageId });
     });
@@ -130,7 +130,7 @@ describe('AvatarRepository', () => {
         });
 
       await expect(
-        avatarRepository.removeEntryFromDB(imageId),
+        avatarRepository.removeEntryFromDB(imageId)
       ).rejects.toThrowError(/Failed to remove avatar entry from DB/);
       expect(deleteOneSpy).toHaveBeenCalledWith({ imageId });
     });
