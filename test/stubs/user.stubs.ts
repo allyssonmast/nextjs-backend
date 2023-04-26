@@ -5,7 +5,7 @@ export const userStub = (): UserDto => {
     email: 'test@example.com',
     first_name: 'Allysson',
     last_name: 'Freitas',
-    password: '123456',
+    password: '1234526',
     avatar: 'avatar',
   };
 };
