@@ -65,6 +65,7 @@ describe('UserRepository', () => {
       expect(UserModel.prototype.create).toHaveBeenCalledWith(userDto);
       const { password, ...userEntity } = result; // is mocking .toJSON() from user.schema.ts
       expect(userEntity).toEqual(createdUser);
+      expect(password).toBe(mongooseResponse.password);
     });
 
     it('should throw BadRequestException when fails to create user', async () => {

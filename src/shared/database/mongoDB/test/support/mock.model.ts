@@ -1,16 +1,11 @@
 export abstract class MockModel<T> {
   protected abstract entityStub: T;
 
-  constructor(createEntityData: T = {} as T) {
-    this.constructorSpy(createEntityData);
-  }
-
-  constructorSpy(_createEntityData: T): void {}
   new = async () => this.entityStub;
-  findOne(filter: any): { exec: () => Promise<T | null> } {
+  findOne(): { exec: () => T | null } {
     return {
-      exec: async (): Promise<T | null> => {
-        return this.entityStub as T | null;
+      exec: (): T | null => {
+        return this.entityStub;
       },
     };
   }
@@ -21,7 +16,7 @@ export abstract class MockModel<T> {
     return obj;
   }
 
-  async create(data: any): Promise<T> {
+  async create(): Promise<T> {
     return this.entityStub;
   }
   async find(): Promise<T[]> {
@@ -35,9 +30,11 @@ export abstract class MockModel<T> {
   async findOneAndUpdate(): Promise<T> {
     return this.entityStub;
   }
-  deleteOne(filter: any): { exec: () => Promise<void> } {
+  deleteOne(): { exec: () => void } {
     return {
-      exec: async (): Promise<void> => {},
+      exec: (): T | null => {
+        return this.entityStub;
+      },
     };
   }
 }

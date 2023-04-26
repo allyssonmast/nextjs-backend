@@ -5,7 +5,6 @@ import {
   Inject,
 } from '@nestjs/common';
 import { IUserRepository } from './interfaces/user.repository.interface';
-import { RabbitMQService } from '../../shared/rabbitmq/rabbitMQ.service';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserAlreadyExistsException } from '../../shared/exceptions/user.exception.error';
@@ -43,10 +42,7 @@ export class UserService {
       );
       const message = `Your account has been created successfully`;
 
-      await this.rabbitMQService.sendEmailNotification(
-        createdUser.email,
-        message,
-      );
+      this.rabbitMQService.sendEmailNotification(createdUser.email, message);
 
       const emailDto: EmailDto = {
         to: createdUser.email,
@@ -54,7 +50,7 @@ export class UserService {
         text: message,
       };
 
-      await this.emailService.sendEmail(emailDto);
+      this.emailService.sendEmail(emailDto);
 
       return createdUser;
     } catch (e) {

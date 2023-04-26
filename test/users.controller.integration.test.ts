@@ -31,7 +31,7 @@ describe('UsersController', () => {
   });
 
   describe('GET /api/user/$id', () => {
-    it('should return 200', async () => {
+    it('should return 200 if user exist', async () => {
       const response = await request(httpServer).get('/api/user/1');
 
       expect(response.status).toBe(200);
@@ -57,7 +57,7 @@ describe('UsersController', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should not include password in the response', async () => {
+    it('should return an error if not include password in the response', async () => {
       const user = {
         first_name: 'Allysson',
         last_name: 'Freitas',
@@ -87,9 +87,8 @@ describe('UsersController', () => {
         imageId: '1',
         avatar: 'https://reqres.in/img/faces/3-image.jpg',
       };
-      await dbConnection.collection('images').insertOne(user);
+      dbConnection.collection('Avatar').insertOne(user);
       const response = await request(httpServer).delete('/api/user/1/avatar');
-
       expect(response.status).toBe(200);
     });
     it('should return 404 if user not found', async () => {
@@ -102,10 +101,16 @@ describe('UsersController', () => {
   describe('GET /api/user/$id/avatar', () => {
     it('should download and save the user avatar', async () => {
       const response = await request(httpServer).get('/api/user/1/avatar');
-
-      console.log(response.body);
-      // Verifica se a resposta está OK
       expect(response.status).toBe(200);
+    });
+    it('should return 409 if user alredy exist', async () => {
+      const avatar = {
+        imageId: '1',
+        avatar: 'https://reqres.in/img/faces/3-image.jpg',
+      };
+      dbConnection.collection('Avatar').insertOne(avatar);
+      const response = await request(httpServer).get('/api/user/1/avatar');
+      expect(response.status).toBe(409);
     });
   });
 });

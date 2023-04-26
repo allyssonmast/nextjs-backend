@@ -9,7 +9,7 @@ export class RabbitMQConfig {
   //amqp://127.0.0.1:5672
   //amqp://localhost:5672
   constructor() {
-    this.url = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
+    this.url = process.env.RABBITMQ_URL || 'amqp://127.0.0.1:5672';
     this.queueName = process.env.RABBITMQ_QUEUE_NAME || 'notifications';
     this.login = process.env.RABBITMQ_USERNAME || 'guest';
     this.password = process.env.RABBITMQ_PASSWORD || 'guest';

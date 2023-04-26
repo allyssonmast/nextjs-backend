@@ -1,7 +1,5 @@
-import { Controller, Post, Body, UseFilters, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Inject } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
-import { MissingParamsFilter } from '../../shared/exceptions/missing.params.error';
-import { UserAlreadyExistsFilter } from '../../shared/exceptions/user.already.exist';
 import { UserEntity } from './entities/user.entity';
 import { IUserService } from './interfaces/user.service.interface';
 

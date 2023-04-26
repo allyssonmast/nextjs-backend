@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { ImageService } from '../../shared/image-encoder/image.service';
 import { IAvatarService } from './interfaces/avatar.service.interface';
 import { IAvatarRepository } from './interfaces/avatar.repository.interface';
+import { UserAlreadyExistsException } from '../../shared/exceptions/user.exception.error';
 
 @Injectable()
 export class AvatarService implements IAvatarService {
@@ -17,6 +18,13 @@ export class AvatarService implements IAvatarService {
     if (!user) {
       throw new NotFoundException('Not found');
     }
+
+    const dbUser = await this.avatarRepository.findImageById(user.id);
+
+    if (dbUser) {
+      throw new UserAlreadyExistsException();
+    }
+
     try {
       const avatarBase64 = await this.imageService.downloadImage(user);
       const image = {
@@ -48,6 +56,6 @@ export class AvatarService implements IAvatarService {
       throw new NotFoundException('Not Found');
     }
 
-    await this.avatarRepository.removeEntryFromDB(user.id);
+    await this.avatarRepository.removeEntryFromDB(dbUser.imageId);
   }
 }

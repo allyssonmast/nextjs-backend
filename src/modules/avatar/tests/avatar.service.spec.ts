@@ -57,14 +57,20 @@ describe('AvatarService', () => {
       };
 
       jest.spyOn(avatarRepository, 'getUserById').mockResolvedValue(user);
+
+      jest
+        .spyOn(avatarRepository, 'findImageById')
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          imageId: userId.toString(),
+          imageData: avatarBase64,
+        });
+
       jest.spyOn(imageService, 'downloadImage').mockResolvedValue(stringBase64);
       jest.spyOn(avatarRepository, 'saveImage').mockResolvedValue({
         imageId: userId.toString(),
         imageData: avatarBase64,
       });
-      jest
-        .spyOn(avatarRepository, 'findImageById')
-        .mockResolvedValue(mockResponse);
 
       // Act
       const result = await avatarService.getUserAvatar(userId);
@@ -126,7 +132,9 @@ describe('AvatarService', () => {
       // Verify UserRepository method calls
       expect(avatarRepository.getUserById).toHaveBeenCalledWith(userId);
       expect(avatarRepository.findImageById).toHaveBeenCalledWith(user.id);
-      expect(avatarRepository.removeEntryFromDB).toHaveBeenCalledWith(user.id);
+      expect(avatarRepository.removeEntryFromDB).toHaveBeenCalledWith(
+        image.imageId,
+      );
     });
 
     it('should throw an exception if user is not found', async () => {
