@@ -11,6 +11,7 @@ import { UserAlreadyExistsException } from '../../shared/exceptions/user.excepti
 import { IRabbitMQService } from './interfaces/rabbitmq.service.interface';
 import { IEmailService } from './interfaces/email.service.interface';
 import { EmailDto } from './dto/email.dto';
+import { UserRepository } from './repository/user.repository';
 
 @Injectable()
 export class UserService {
